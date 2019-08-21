@@ -69,9 +69,9 @@ An account can be marked inactive in three ways.
 
 1. The contract owner can make a transaction to mark it inactive after 3 or more years of inactivity
 2. If an account receives tokens after having been inactive for a long period, it is marked inactive. That is, we opportunistically mark it inactive when another account sends tokens to that address.
-3. If an account has been inactive for more than 3 years, but was never marked inactive by the contract owner, and then the account makes a transaction after a long period of dormancy (found lost keys), transaction will temporarily the account to inactive, pay all owed fees, and then unmark it as inactive. 
+3. If an account has been inactive for 3 years, but was never marked inactive by the contract owner, and then the account makes a transaction after a long period of dormancy (found lost keys), transaction will temporarily the account to inactive, pay all owed fees, and then unmark it as inactive. 
 
-Therefore in all cases, if an account is ever inactive for more than 3 years, it wil always pay all owed storage and inactive fees. Also note if the contract owner forces paying storage fees on an overdue account it does not alter the 'inactivity' clock for that account. Therefore, the contract owner can continue collecting owed storage fees on accounts and still mark it as inactive when it later crosses the 3 year inactivity threshold.
+Therefore in all cases, if an account is ever inactive for 3 years or more, it wil always pay all owed storage and inactive fees. Also note if the contract owner forces paying storage fees on an overdue account it does not alter the 'inactivity' clock for that account. Therefore, the contract owner can continue collecting owed storage fees on accounts and still mark it as inactive when it later crosses the 3 year inactivity threshold.
 
 Users can avoid having inactive accounts by simply making any valid transaction with the token (like sending to self) at least every 1094 days. 
 

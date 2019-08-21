@@ -141,7 +141,7 @@ For instance, if the user is only allowed to post a sell order for 99.9% of thei
 
 ## Avoiding inactive fees
 
-If an address holding CGT is inactive for more than 3 years (has not created a successful transaction interacting with the Cache contract), the account can be marked inactive, and fees are increased. This is unlikely to happen on an exchange with many active addresses, however if the exchange has any address that may hold CGT with no transactions for an extended period of time, they should be aware to transact on this address at least every 1094 days.
+If an address holding CGT is inactive for 3 years (has not created a successful transaction interacting with the Cache contract), the account can be marked inactive, and fees are increased. This is unlikely to happen on an exchange with many active addresses, however if the exchange has any address that may hold CGT with no transactions for an extended period of time, they should be aware to transact on this address at least every 1094 days.
 
 Suggested transactions to signal the account is active:
 
