@@ -1,13 +1,13 @@
 # Exchange Integration Guide
 
-The Cache Gold Token (CGT) is an ERC-20 compatible token in which 1 token represents 1 gram of gold. It users 8 decimal places and should be listed with symbol CGT.
+The Cache Gold Token (CGT) is an ERC-20 compatible token in which 1 token represents 1 gram of gold. It uses 8 decimal places and has symbol `CGT`.
 
 While this token inherits the ERC-20 interface, there are extra properties of the token that may require additional work for exchange integration. 
 
 In particular, there is:
 
 * **A Transfer Fee** of 10 basis points (0.10%) on each transfer from one address to another. This fee is configurable and may be lowered in the future, but cannot rise higher than 0.1%.
-* **A Storage Fee** of 0.25% a year. This fee is not configurable.
+* **A Storage Fee** of 25 basis points (0.25%) a year. This fee is not configurable.
 
 Please fully read the [Fees Guide](./FEES.md) to fully understand the nature of these fees.
 
