@@ -1,8 +1,8 @@
 # Exchange Integration Guide
 
-The Cache Gold Token (CGT) is an ERC-20 compatible token in which 1 token represents 1 gram of gold. It uses 8 decimal places and has symbol `CGT`.
+The Cache Gold Token (CGT) is an ERC-20 compatible token in which 1 token represents 1 gram of physcial gold. It uses 8 decimal places and has symbol `CGT`.
 
-The contract can be found [here](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol) along with it's [ABI](https://github.com/cache-token/cache-contract/blob/master/build/contracts/CacheGold.json)
+The contract source can be found [here](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol) along with it's [ABI file](https://github.com/cache-token/cache-contract/blob/master/build/contracts/CacheGold.json)
 
 While this token inherits the ERC-20 interface, there are extra properties of the token that may require additional work for exchange integration. 
 
@@ -13,7 +13,7 @@ In particular, there is:
 
 Please fully read the [Fees Guide](./FEES.md) to fully understand the nature of these fees.
 
-**MUST READ**: Because balances will naturally decay over time as storage fees accrue, it is essential to account for this. Any caching of an address' token balance in a database may eventually become out of sync with the real world balance. Additionally, transfer fees will be collected on each token transaction, so these fees must also be accounted for.
+**MUST READ**: Because balances will naturally decay over time as storage fees accrue, it is essential for exchanges to account for this. Any caching of an address' token balance in a database may eventually become out of sync with the real world token balance. Additionally, transfer fees will be collected on each token transaction, so these fees must also be accounted for.
 
 ## Handling Transfer Fees
 
@@ -29,7 +29,7 @@ because
 4.99500500 + (4.99500500 * 0.0001) [transfer fee] = 5 tokens
 ```
 
-This is described in full in the [Fees Guide](./FEES.md)
+This is described in full in the [Fees Guide](./FEES.md#transfer-fee-included)
 
 In fact, calling `balanceOf()` on the user's deposit address will return `4.99500500`, since it is the maximum sendable balance. Sending a transaction with the amount returned from `balanceOf()` should never fail, as it always accounts for owed storage fees and possible transfer fee on the next hop.
 
@@ -168,4 +168,4 @@ The contract exposes several functions to be able to pull detailed information a
 * [calcTransferFee(address account, uint256 value) view returns(uint256)](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L763) : Will return the expected transfer fee on `account` sending `value` tokens
 * [storageFee(uint256 balance, uint daysSinceStoragePaid) pure returns(uint256)](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L781) : Will return the expected storage fee on `balance` for `daysSinceStoragePaid` days
 * [storageFeeGracePeriodDays() view returns(uint)](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L558) : The current storage fee grace period for addresses receiving tokens for the first time
-* [transferFeeBasisPoints() view returns(uint)](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L565) : The current transfer fee in basis points. Value will be an integer between [0, 10] inclusive.
+* [transferFeeBasisPoints() view returns(uint)](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L565) : The current transfer fee in basis points. Value will be an integer between 0-10 inclusive.

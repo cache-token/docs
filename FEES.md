@@ -4,7 +4,7 @@
 
 The storage fee is meant to mimic the standard fees paid when storing physical gold in secured vaults. The fee is structured on a per annum basis at 25 basis points (0.25%) and is not configurable.
 
-#### How to Pay Storage Fees
+#### How Storage Fees are Paid
 
 The storage fee can be paid in three ways: 
 
@@ -61,7 +61,7 @@ The yearly inactive fee on a snapshot balance of 4.9625 tokens is 1 token per ye
 
 The contract owner has the ability to force collection of these inactive fees on a prorated basis at any point in time on inactive accounts.
 
-If at any point a user owning an address resumes any activity (originates a transaction to the contract), the account is "reactivated", previously owed fees are deducted, and the storage fee clock is reset to 0. The account cannot be marked inactive for another 3 years of inactivity.
+If at any point an account resumes any activity (originates a transaction to the contract), the account is "reactivated", previously owed fees are deducted, and the storage fee clock is reset to 0. The account cannot be marked inactive for another 3 years of inactivity.
 
 **Inactive fees are totally disjoint and non-coincident with storage fees**. When an account is marked inactive, previously owed storage fees are paid automatically, and inactive fees begin accruing from the moment the account had been inactive for 3 years.
 
@@ -83,7 +83,7 @@ Note that transferring tokens to the same address incurs no transfer fee. This a
 ## Important Note On Balance Representation
 
 ### Balance Decay
-The Cache contract is unique in that it will show the user balance `balanceOf()` not as it is currently stored in the contract storage, but the balance taking into account owed fees. Token balances appear to decay over time, even if the accrued fees have not yet been collected. This is a deliberate design choice to allow compatibility with existing wallets so that choosing to "Send Entire Balance" or "Maximum" as shown by `balanceOf`, will not fail due to insufficient balance after fees. This contract implements an additional function `balanceOfNoFees()`, which is the typical ERC-20 implementation that shows the contract storage value of the current balance, without taking owed fees into consideration.
+The Cache contract is unique in that it will show the user balance `balanceOf()` not as it is currently stored in the contract storage, but the balance taking into account owed fees. Token balances appear to decay over time, even if the accrued fees have not yet been collected. This is a deliberate design choice to allow compatibility with existing wallets so that choosing to "Send Entire Balance" or "Maximum" as shown by `balanceOf()`, will not fail due to insufficient balance after fees. The contract implements an additional function `balanceOfNoFees()`, which is the typical ERC-20 implementation that shows the contract storage value of the current balance, without taking owed fees into consideration.
 
 ### Transfer Fee Included
 The transfer fee also adds another modification to the shown balance. For our design, we desire for transactions to not deduct the transfer fee from the amount sent, while also desiring for the 'Send Entire Balance' on existing wallets to still work. In order to acheive this goal, the `balanceOf` functions shows the maximum amount that can be sent, taking into account the transfer fee. For instance if a user, Alice, received 10 tokens, has no storage fees due, and the transfer fee is 10 basis points, the maximum she could send is:
@@ -94,7 +94,7 @@ Because sending 9.99000999 incurs a fee of 0.00999001, and
 ```
 9.99000999 + 0.00999001 = 10, the amount received
 ```
-So `balanceOf()` will show `9.99000999` instead of `10.00000000`.
+So `balanceOf()` will show `9.99000999` instead of `10.00000000` and `balanceOfNoFees()` would show the expected `10.00000000` (the amount received).
 
 In this sense, the balance shown is already 'paying for the next hop' in transfer fees. If Alice then sent `9.99000999` tokens to Bob, a `Transfer` event would be emitted would show the amount sent as `9.99000999`. If Bob then checked his `balanceOf()`, it would show:
 ```
@@ -123,7 +123,7 @@ which accounts for transfer fees on the next hop if sending entire balance
 
 `balanceOfNoFees(Bob)` would return :
 ```
-5
+5.00000000
 ```
 and `balanceOf(Bob)` would return :
 ```
