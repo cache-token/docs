@@ -1,24 +1,24 @@
-# Understanding Cache Gold Token Fees
+# Understanding CACHE Gold Token Fees
 
 ## Storage Fee
 
-The storage fee is meant to mimic the standard fees paid when storing physical gold in secured vaults. The fee is structured on a per annum basis at 25 basis points (0.25%) and is not configurable.
+The storage fee is meant to mimic the standard fees paid when storing physical gold in vaults. The fee is structured on a per annum basis at 25 basis points (0.25%) and is not configurable.
 
 #### How Storage Fees are Paid
 
 The storage fee can be paid in three ways: 
 
 1.  Transfering tokens to another address.
-2.  Transfering any amount of tokens to same address (i.e. the sender and receiver are identical).
+2.  Transfering any amount of tokens to same address (i.e. the sender and receiver address are identical).
 3.  Making a transaction to call the contract's [payStorageFee()](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L304) function.
 
-When sending tokens to another address via the ERC-20 `transfer()` function, any accrued storage fees will automatically be collected. **NOTE:** If the receiving address has a storage fee balance due, the storage fee will automatically be deducted from this address as well (both sender and receiver pay). In this way, storage fees are opportunistically collected whenever a user regularly transacts. For most cases, users do not have to worry about paying their fees, it will happen naturally through token usage.
+When sending tokens to another address via the ERC-20 `transfer()` function, any accrued storage fees will automatically be collected. **NOTE:** If the receiving address has a storage fee balance due, the storage fee will automatically be deducted from this address as well (both sender and receiver pay). In this way, storage fees are automatically collected whenever a token holder transacts. For most cases, token holders do not have to worry about paying their fees, it will happen automatically whenever they send or receive CACHE Gold Tokens.
 
 If a user is planning to hold their tokens in an address for a long period of time, they may also pay storage fees by sending 0 or more tokens back to their own address (send to self). There is no transfer fee when transferring to the same address. This will be the easiest way for _most_ users to manually pay storage fees.
 
-Lastly, for saavy users and exchanges, storage fees can also be paid by constructing a transaction to call the contract function `payStorageFee()`. This operation is less complex (less EVM operations) than doing a transfer to the same address, and therefore will require less Gas to execute.
+Lastly, for saavy users and exchanges, storage fees can also be paid by constructing a transaction to call the contract function `payStorageFee()`. This operation is less complex (less EVM operations) than doing a transfer to the same address, and therefore will require less gas to execute.
 
-Each time a storage fee is paid, either explicitly or via transfer, the storage fee clock on the account is reset to 0 days. For contract purposes, 1 day is exactly 86,400 seconds, and a year is exactly 365 days.
+Each time a storage fee is paid, either explicitly or via transfer, the storage fee clock on the account is reset to 0 days. For contract purposes, 1 day is exactly 86,400 seconds, and one year is exactly 365 days.
 
 #### Storage Fee Calculation
 
@@ -39,8 +39,8 @@ function calcStorageFee(balance, days_passed) {
 #### Storage Fee Grace Period
 The contract can set a configurable grace period before storage fees begin to accrue on an account. The current grace period is avaliable via the contract function `storageFeeGracePeriodDays()`. The grace period is stored per address, so that if the global grace period changes while in effect for an address, it's grace period can be retroactively honored. The grace period should only be valid once per address. That is, if an account's grace period has expired, receiving more tokens on the address will not restart the grace period.
 
-#### Force Paying Fees
-If it has been more than 365 days since storage fees were last paid on a particular address, the contract owner has the option to force collecting accrued storage fees on these delinquent accounts.
+#### Force Collecting Fees
+If it has been more than 365 days since storage fees were last paid on a particular address, the contract owner has the option to force collecting accrued storage fees on these inactive accounts.
 
 #### Inactive Fee
 The contract also implements an inactive fee. If an address has not interacted with the contract (originated a transaction to the contract) for 3 or more years, the account may be flagged as "inactive". When it is marked inactive, the owed storage fees are deducted and the balance after deducting storage fees is taken as a snapshot. A yearly inactive fee of 50 basis points (0.5%) of the snapshot balance or 1 token, whichever is greater, is set on the account. 
@@ -61,29 +61,29 @@ The yearly inactive fee on a snapshot balance of 4.9625 tokens is 1 token per ye
 
 The contract owner has the ability to force collection of these inactive fees on a prorated basis at any point in time on inactive accounts.
 
-If at any point an account resumes any activity (originates a transaction to the contract), the account is "reactivated", previously owed fees are deducted, and the storage fee clock is reset to 0. The account cannot be marked inactive for another 3 years of inactivity.
+If at any point an account resumes any activity (originates a transaction to the contract), the account is "reactivated", previously owed fees are deducted, and the storage fee clock is reset to 0. The account cannot be marked inactive unless it reamains inactive for another 3 years from the reset date.
 
-**Inactive fees are totally disjoint and non-coincident with storage fees**. When an account is marked inactive, previously owed storage fees are paid automatically, and inactive fees begin accruing from the moment the account had been inactive for 3 years.
+**Inactive fees are totally distinct from and non-coincident with storage fees**. When an account is marked inactive, previously owed storage fees are paid automatically, and inactive fees begin accruing from the moment the account had been inactive for 3 years.
 
 An account can be marked inactive in three ways.
 
-1. The contract owner can make a transaction to mark it inactive after 3 or more years of inactivity
-2. If an account receives tokens after having been inactive for a long period, it is marked inactive. That is, we opportunistically mark it inactive when another account sends tokens to that address.
-3. If an account has been inactive for 3 years, but was never marked inactive by the contract owner, and then the account makes a transaction after a long period of dormancy (like when recovering lost keys), the transaction will temporarily the account to inactive, pay all owed fees, and then unmark it as inactive. 
+1. The contract owner can make a transaction to mark it inactive after 3 or more years of inactivity.
+2. If an account receives tokens after having been inactive for a long period, it is marked inactive. That is, we automatically mark an account inactive when another account sends tokens to that address.
+3. If an account has been inactive for 3 years, but was never marked inactive by the contract owner, and then the account makes a transaction after a long period of dormancy (like when recovering lost keys), the transaction will temporarily set the account to inactive, pay all owed fees, and then unmark it as inactive. 
 
 Therefore in all cases, if an account is ever inactive for 3 years or more, it wil always pay all owed storage and inactive fees. Also note if the contract owner forces paying storage fees on an overdue account it does not alter the 'inactivity' clock for that account. Therefore, the contract owner can continue collecting owed storage fees on accounts and still mark it as inactive when it later crosses the 3 year inactivity threshold.
 
-Users can avoid having inactive accounts by simply making any valid transaction with the token (like sending to self) at least once every 1094 days. 
+Users can avoid having inactive accounts by simply making any valid transaction with the token (such as sending to self) at least once every 1094 days. 
 
 ## Transfer fee
 The transfer fee is a simple mechanism that charges 10 basis points (0.10%) on the amount of tokens sent in each `transfer`. The transfer fee will not deduct from the total sent, but will be in addition to the sending amount. For instance, if 5 tokens are sent from Alice to Bob, the total transfer amount will be 5.005, with 5 tokens going to Bob and 0.005 tokens being sent to a fee collection address controlled by Cache.
 
-Note that transferring tokens to the same address incurs no transfer fee. This as a simple case to pay storage fees without calling a special contract function. 
+Note that transferring tokens to the same address incurs no transfer fee. This is a simple way to pay storage fees without calling a special contract function. 
 
 ## Important Note On Balance Representation
 
 ### Balance Decay
-The Cache contract is unique in that it will show the user balance `balanceOf()` not as it is currently stored in the contract storage, but the balance taking into account owed fees. Token balances appear to decay over time, even if the accrued fees have not yet been collected. This is a deliberate design choice to allow compatibility with existing wallets so that choosing to "Send Entire Balance" or "Maximum" as shown by `balanceOf()`, will not fail due to insufficient balance after fees. The contract implements an additional function `balanceOfNoFees()`, which is the typical ERC-20 implementation that shows the contract storage value of the current balance, without taking owed fees into consideration.
+The CACHE contract is unique in that it will show the user balance `balanceOf()` not as it is currently stored in the contract storage, but the balance taking into account owed fees. Token balances appear to decay over time, even if the accrued fees have not yet been collected. This is a deliberate design choice to allow compatibility with existing wallets so that choosing to "Send Entire Balance" or "Maximum" as shown by `balanceOf()`, will not fail due to insufficient balance after fees. The contract implements an additional function `balanceOfNoFees()`, which is the typical ERC-20 implementation that shows the contract storage value of the current balance, without taking owed fees into consideration.
 
 ### Transfer Fee Included
 The transfer fee also adds another modification to the shown balance. For our design, we desire for transactions to not deduct the transfer fee from the amount sent, while also desiring for the 'Send Entire Balance' on existing wallets to still work. In order to acheive this goal, the `balanceOf` functions shows the maximum amount that can be sent, taking into account the transfer fee. For instance if a user, Alice, received 10 tokens, has no storage fees due, and the transfer fee is 10 basis points, the maximum she could send is:
@@ -136,7 +136,7 @@ The transaction would emit two `Transfer` events:
 2. From Alice -> Cache Fee Address for `0.00705479` tokens, which accounts for Alice's accrued storage fee and the transfer fee on `5` tokens
 
 ### Case 2
-**Action** : Alice has 10 tokens held for 30 days. She wants to send 5 tokens to Bob, who currently has had 1 token for 45 days. Alice makes a simple ERC20 transfer sending 5 tokens to Bob.
+**Action** : Alice has 10 tokens held for 30 days. She wants to send 5 tokens to Bob, who currently has had 1 token for 45 days. Alice makes a simple ERC-20 transfer sending 5 tokens to Bob.
 
 **Result** : After the transfer
 
