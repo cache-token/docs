@@ -1,23 +1,23 @@
 # Token Description
 
-The Cache Gold Token (CGT) is an ERC-20 compatible token in which 1 token represents 1 gram of physical gold. All gold tokens minted are backed by physical gold held in reserves at participating fully audited vaults and may be redeemed for physical gold.
+The CACHE Gold Token (CGT) is an ERC-20 compatible token in which 1 token represents 1 gram of pure physical gold. All gold tokens minted are backed by physical gold held in reserves at participating fully audited vaults and may be redeemed for physical gold.
 
-While this token inherits the ERC-20 interface, there are extra properties of the token that are non-standard. In particular, the token has the ability to charge a storage fee that accrues over time as the token is held and a transfer fee that is paid when tokens are transferred to other unique address. These fees are paid in the native token itself, and are separate from the transactions fees paid in ETH when transacting on the Ethereum network. These fees are collected opportunistically when users transact.
+While this token inherits the ERC-20 interface, there are extra properties of the token that are non-standard. In particular, the token has the ability to charge a storage fee that accrues over time as the token is held and a transfer fee that is paid when tokens are transferred from one address to another. These fees are paid in the native token itself ("in kind"), and are separate from the transaction fees paid in ETH when transacting on the Ethereum network. These fees are collected automatically whenever token holders transact.
 
 ### Fee Overview
 
 Please read the [Fees Guide](./FEES.md) for a detailed overview of the storage and transfer fees.
 
-### Internal Cache Addresses
+### Internal Addresses
 
-There are 6 addresses associated with the contract that have the special status as Cache "internal" addresses. These addresses are not subject to storage or transfer fees.
+There are 6 addresses associated with the contract that have the special status as CACHE "internal" addresses. These addresses are not subject to storage or transfer fees.
 
-1.  Owner Address : The address owning the Cache Gold Token contract and the only account able to mint tokens and perform other administrative functions. This is a MultiSig address so that tokens can only be minted pending group approval.
-2.  Backed Treasury Address : The backed treasury is where all tokens are minted to and where tokens enter circulation. For tokens to be minted, an equivalent amount of gold must to be locked and unencumbered in a participating audited vault, and the Locked Gold Oracle must be updated with this amount. The Backed Treasury is also a MultiSig address so transfers to external addresses cannot occur without group approval.
+1.  Owner Address : The address owning the CACHE Gold Token contract and the only account able to mint tokens and perform other administrative functions. This is a MultiSig address so that tokens can only be minted pending group approval.
+2.  Backed Treasury Address : The backed treasury is where all tokens are minted to and where tokens enter circulation. For tokens to be minted, an equivalent amount of gold must to be locked and unencumbered in a participating audited vault account, and the Locked Gold Oracle must be updated with this amount. The Backed Treasury is also a MultiSig address so transfers to external addresses cannot occur without group approval.
 3.  Unbacked Treasury Address : The unbacked treasury is where tokens exit circulation. When tokens are redeemed for physical gold bars, the tokens will be moved to this address.
 4.  Fee Address : The address where storage and transfer fees for external accounts are collected. This is also a MultiSig address so no single party has the ability transfer collected fees.
-5.  Storage Fee Enforcer : This address is able to force paying storage fees or inactive fees on delinquent accounts.
-6.  Redeem Address: The address tokens must be sent to when redeeming tokens for physical gold. Cache will use a KYC process to whitelist accounts that send to this address and monitor deposits for redemption of physical gold bars.
+5.  Storage Fee Enforcer : This address is able to force paying storage fees or inactive fees on inactive accounts.
+6.  Redeem Address: The address tokens must be sent to when redeeming tokens for physical gold. CACHE will use a KYC process to whitelist accounts that send to this address and monitor deposits for redemption of physical gold bars.
 
 #### Transfer Restrictions
 
@@ -25,14 +25,13 @@ For security reasons, some addresses are restricted from sending to external add
 
 ![Addresses](./img/addresses.png)
 
-The Redeem Address can only transfer to the Backed or Unbacked Treasury. This insures that if the private key is hacked, the hacker can only move the tokens to other addresses controlled by Cache.
+The Redeem Address can only transfer to the Backed or Unbacked Treasury. This insures that if the private key is hacked, the hacker can only move the tokens to other addresses controlled by CACHE.
 
-The Unbacked Treasury can only receive tokens from the Backed Treasury or the Redeem Address. When tokens enter the Unbacked Treasury the `totalCirculation()` decreases, therefore we want to ensure only addresses controlled by Cache can transfer there. The Unbacked Treasury can only transfer tokens to the Backed Treasury, and it is only allowed when the Locked Gold Oracle has sufficient supply to allow these tokens to re-enter circulation.
-
+The Unbacked Treasury can only receive tokens from the Backed Treasury or the Redeem Address. When tokens enter the Unbacked Treasury the `totalCirculation()` decreases, therefore we want to ensure only addresses controlled by CACHE can transfer there. The Unbacked Treasury can only transfer tokens to the Backed Treasury, and it is only allowed when the Locked Gold Oracle has sufficient supply to allow these tokens to re-enter circulation.
 
 ### Minting and Locked Gold Oracle
 
-The contract keeps touch with the real world supply of locked gold via the Locked Gold Oracle contract. It's only function is to keep track of the amount of gold currently locked in participating vaults, and the Cache contract can check this value when adding new tokens to circulation to ensure it does not exceed the limit. 
+The contract keeps track of the the real world supply of locked gold via the Locked Gold Oracle contract. It's only function is to keep track of the amount of gold currently locked in participating vaults, and the CACHE contract can check this value when adding new tokens to circulation to ensure it does not exceed the limit. 
 
 The number of tokens in circulation at any given time is:
 ```
@@ -53,7 +52,7 @@ All ERC-20 compatible tokens issue two native events:
 
 These allow any user to query ethereum nodes for a history of `Transfer` or `Approval` events, additionally being able to filter by the addresses either sending/receiving tokens or being approved for transfer.
 
-In addition to these events, Cache Tokens will emit four additional events:
+In addition to these events, CACHE Tokens will emit four additional events:
 
 * `event AddBackedTokens(amount)`
 * `event RemoveTokens(amount)`
