@@ -149,6 +149,8 @@ Suggested transactions to signal the account is active:
 2. `transfer()` any amount of CGT to self
 3. `payStorageFee()` 
 
+All three methods will update the timestamp for the account's last activity, and `transfer()` and `payStorageFee()` will also deduct owed storage fees from the account balance.
+
 ## Estimated Gas Costs
 
 * `transfer` : ~130,000 on first transfer and ~75,000 on subsequent transfers
