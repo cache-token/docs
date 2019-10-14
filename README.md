@@ -1,4 +1,4 @@
-# Documentation Related to CACHE Token
+# Documentation Related to the CACHE Gold Token
 
 The [CACHE Gold Token](https://github.com/cache-token/cache-contract)
 
