@@ -10,7 +10,7 @@ The storage fee can be paid in three ways:
 
 1.  Transfering tokens to another address.
 2.  Transfering any amount of tokens to same address (i.e. the sender and receiver address are identical).
-3.  Making a transaction to call the contract's [payStorageFee()](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L304) function.
+3.  Making a transaction to call the contract's [payStorageFee()](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L307) function.
 
 When sending tokens to another address via the ERC-20 `transfer()` function, any accrued storage fees will automatically be collected. **NOTE:** If the receiving address has a storage fee balance due, the storage fee will automatically be deducted from this address as well (both sender and receiver pay). In this way, storage fees are automatically collected whenever a token holder transacts. For most cases, token holders do not have to worry about paying their fees, it will happen automatically whenever they send or receive CACHE Gold Tokens.
 
@@ -37,27 +37,46 @@ function calcStorageFee(balance, days_passed) {
 ```
 
 #### Storage Fee Grace Period
-The contract can set a configurable grace period before storage fees begin to accrue on an account. The current grace period is avaliable via the contract function `storageFeeGracePeriodDays()`. The grace period is stored per address, so that if the global grace period changes while in effect for an address, it's grace period can be retroactively honored. The grace period should only be valid once per address. That is, if an account's grace period has expired, receiving more tokens on the address will not restart the grace period.
+The contract can set a configurable grace period before storage fees begin to accrue on an account. The current grace period is avaliable via the contract function [storageFeeGracePeriodDays()](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L442). The grace period is stored per address, so that if the global grace period changes while in effect for an address, it's grace period can be retroactively honored. The grace period should only be valid once per address. That is, if an account's grace period has expired, receiving more tokens on the address will not restart the grace period.
 
 #### Force Collecting Fees
 If it has been more than 365 days since storage fees were last paid on a particular address, the contract owner has the option to force collecting accrued storage fees on these inactive accounts.
 
 #### Inactive Fee
-The contract also implements an inactive fee. If an address has not interacted with the contract (originated a transaction to the contract) for 3 or more years, the account may be flagged as "inactive". When it is marked inactive, the owed storage fees are deducted and the balance after deducting storage fees is taken as a snapshot. A yearly inactive fee of 50 basis points (0.5%) of the snapshot balance or 1 token, whichever is greater, is set on the account. 
+The contract also implements an inactive fee. If an address has not interacted with the contract (originated a transaction to the contract) for 3 or more years, the account may be flagged as "inactive". When it is marked inactive, the owed storage fees are deducted and the balance after deducting storage fees is taken as a snapshot. A yearly inactive fee of 50 basis points (0.5%) of the snapshot balance _or_ 1 token, _whichever is greater_, is set on the account. 
 
 For example, if an account has been inactive for 3 years, and has a balance of 1000 tokens, without ever having paid storage fees.
+
+It would owe
 ```
-It would owe 1000 * 0.0025 * 3 = 7.5 tokens in storage fees.
-After this is deducted the remaining balance at 3 years is: 1000 - 7.5 = 992.5 which becomes the snapshot balance
-The yearly inactive fee on 992.5 tokens = 992.5 * 0.005 = 4.9625 tokens
+1000 * 0.0025 * 3 = 7.5
+```
+tokens in storage fees.
+
+After this is deducted the remaining balance at 3 years is: 
+```
+1000 - 7.5 = 992.5
+```
+which becomes the snapshot balance.
+
+The yearly inactive fee on 992.5 tokens is
+```
+992.5 * 0.005 = 4.9625 tokens
 ```
 
-Similarly, if the account has been inactive for 3 years, and only had a balance of 5 tokens.
+Similarly, if the account has been inactive for 3 years, and only had a balance of 5 tokens. It would owe...
 ```
-It would owe 5 * 0.0025 * 3 = 0.0375 tokens in storage fees.
-After this is deducted the remaining balance at 3 years is: 5 - 0.0375 = 4.9625, which becomes the snapshot balance
-The yearly inactive fee on a snapshot balance of 4.9625 tokens is 1 token per year, as 1 token > 50 basis points on 4.9625 tokens.
+5 * 0.0025 * 3 = 0.0375
 ```
+tokens in storage fees.
+
+After this is deducted the remaining balance at 3 years is...
+```
+5 - 0.0375 = 4.9625
+```
+which becomes the snapshot balance
+
+The yearly inactive fee on a snapshot balance of `4.9625` tokens is `1 token` per year, as `1 token > 50 basis points on 4.9625 tokens`.
 
 The contract owner has the ability to force collection of these inactive fees on a prorated basis at any point in time on inactive accounts.
 
@@ -83,7 +102,7 @@ Note that transferring tokens to the same address incurs no transfer fee. This i
 ## Important Note On Balance Representation
 
 ### Balance Decay
-The CACHE contract is unique in that it will show the user balance `balanceOf()` not as it is currently stored in the contract storage, but the balance taking into account owed fees. Token balances appear to decay over time, even if the accrued fees have not yet been collected. This is a deliberate design choice to allow compatibility with existing wallets so that choosing to "Send Entire Balance" or "Maximum" as shown by `balanceOf()`, will not fail due to insufficient balance after fees. The contract implements an additional function `balanceOfNoFees()`, which is the typical ERC-20 implementation that shows the contract storage value of the current balance, without taking owed fees into consideration.
+The CACHE contract is unique in that it will show the user balance [balanceOf()](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L490-L492) not as it is currently stored in the contract storage, but the balance taking into account owed fees. Token balances appear to decay over time, even if the accrued fees have not yet been collected. This is a deliberate design choice to allow compatibility with existing wallets so that choosing to "Send Entire Balance" or "Maximum" as shown by `balanceOf()`, will not fail due to insufficient balance after fees. The contract implements an additional function [balanceOfNoFees()](https://github.com/cache-token/cache-contract/blob/master/contracts/CacheGold.sol#L501-L503), which is the typical ERC-20 implementation that shows the contract storage value of the current balance, without taking owed fees into consideration.
 
 ### Transfer Fee Included
 The transfer fee also adds another modification to the shown balance. For our design, we desire for transactions to not deduct the transfer fee from the amount sent, while also desiring for the 'Send Entire Balance' on existing wallets to still work. In order to acheive this goal, the `balanceOf` functions shows the maximum amount that can be sent, taking into account the transfer fee. For instance if a user, Alice, received 10 tokens, has no storage fees due, and the transfer fee is 10 basis points, the maximum she could send is:
@@ -92,8 +111,10 @@ The transfer fee also adds another modification to the shown balance. For our de
 ```
 Because sending 9.99000999 incurs a fee of 0.00999001, and 
 ```
-9.99000999 + 0.00999001 = 10, the amount received
+9.99000999 + 0.00999001 = 10
 ```
+the amount received.
+
 So `balanceOf()` will show `9.99000999` instead of `10.00000000` and `balanceOfNoFees()` would show the expected `10.00000000` (the amount received).
 
 In this sense, the balance shown is already 'paying for the next hop' in transfer fees. If Alice then sent `9.99000999` tokens to Bob, a `Transfer` event would be emitted would show the amount sent as `9.99000999`. If Bob then checked his `balanceOf()`, it would show:
