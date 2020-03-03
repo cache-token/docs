@@ -153,10 +153,10 @@ All three methods will update the timestamp for the account's last activity, and
 
 ## Estimated Gas Costs
 
-* `transfer` : ~130,000 on first transfer and ~75,000 on subsequent transfers
-* `approve` : ~66,000 on first approve and ~37,000 on subsequent approves
-* `transferFrom` : ~162,000 on first transferFrom and ~83000 on subsequent calls 
-* `payStorageFee` : ~51,000 
+* `transfer` : 75,000 - 160,000
+* `approve` : 35,000 - 70,000
+* `transferFrom` : 80,000 - 165,000
+* `payStorageFee` : ~50,000 
 
 ## Advanced Contract Interaction
 
