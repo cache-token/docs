@@ -29,7 +29,6 @@ Endpoint allows for the deposit, reservation, redemption, proof of reserve verif
 * [Reserve a particular bar]() : ``
 * [Remove the reservation a particular bar]() : ``
 * [Verify the reservation status of bars by address]() : ``
-* [Mint new tokens]() : ``
 * [Redeem a bar]() : ``
 * [Check fees accrued]() : ``
 * [Pay accrued fees]() : ``
